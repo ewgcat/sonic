@@ -1,0 +1,24 @@
+sonic:
+  token:
+    secret: ${SECRET_KEY:sonic}
+    expireDay: ${EXPIRE_DAY:14}
+  user:
+    register:
+      enable: ${REGISTER_ENABLE:true}
+    normal:
+      enable: ${NORMAL_USER_ENABLE:true}
+    ldap:
+      enable: ${LDAP_USER_ENABLE:true}
+      userId: ${LDAP_USER_ID:cn}
+      userBaseDN: ${LDAP_BASE_DN:ou=users}
+      objectClass: ${LDAP_OBJECT_CLASS:person}
+  permission:
+    enable: ${PERMISSION_ENABLE:true}
+    superAdmin: ${PERMISSION_SUPER_ADMIN:sonic}
+
+spring:
+  ldap:
+    base: ${LDAP_BASE:ou=system}
+    username: ${LDAP_USERNAME:uid=admin,ou=system}
+    password: ${LDAP_PASSWORD:Sonic!@#123}
+    urls: ${LDAP_URL:ldap://127.0.0.1:10389}

@@ -1,0 +1,28 @@
+server:
+  port: ${SONIC_EUREKA_PORT:9761}
+
+spring:
+  security:
+    basic:
+      enabled: true
+    user:
+      name: ${SONIC_EUREKA_USERNAME:sonic}
+      password: ${SONIC_EUREKA_PASSWORD:sonic}
+
+eureka:
+  datacenter: sonic-server
+  environment: prod
+  instance:
+    hostname: ${SONIC_EUREKA_HOST:127.0.0.1}
+    instance-id: ${random.uuid}
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000
+    response-cache-update-interval-ms: 5000
+    use-read-only-response-cache: false
+  client:
+    #    For stand-alone deployment, the following is false 单机部署的话以下为false
+    register-with-eureka: ${IS_CLUSTERED:false}
+    fetch-registry: ${IS_CLUSTERED:false}
+    service-url:
+      defaultZone: http://${SONIC_EUREKA_USERNAME:sonic}:${SONIC_EUREKA_PASSWORD:sonic}@${SONIC_EUREKA_HOST:127.0.0.1}:${SONIC_EUREKA_PORT:9761}/eureka/

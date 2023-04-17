@@ -1,0 +1,47 @@
+name: deploy to dockerHub
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: replace version
+        run: ver=${{ steps.previoustag.outputs.tag }} && new_ver=${ver:1} && sed -i "s/SONIC_VERSION/${new_ver}/g" pom.xml
+      - name: login docker hub
+        run: echo "${{ secrets.ACCESS_TOKEN }}" | docker login -u zhouyixun --password-stdin
+      - name: Validate and Compile with Maven
+        run: mvn package -Dmaven.test.skip=true
+      - name: deploy controller
+        run: docker build -t sonicorg/sonic-server-controller:${{ steps.previoustag.outputs.tag }} -f sonic-server-controller/src/main/docker/Dockerfile .
+      - name: push controller
+        run: docker push sonicorg/sonic-server-controller:${{ steps.previoustag.outputs.tag }}
+      - name: deploy eureka
+        run: docker build -t sonicorg/sonic-server-eureka:${{ steps.previoustag.outputs.tag }} -f sonic-server-eureka/src/main/docker/Dockerfile .
+      - name: push eureka
+        run: docker push sonicorg/sonic-server-eureka:${{ steps.previoustag.outputs.tag }}
+      - name: deploy gateway
+        run: docker build -t sonicorg/sonic-server-gateway:${{ steps.previoustag.outputs.tag }} -f sonic-server-gateway/src/main/docker/Dockerfile .
+      - name: push gateway
+        run: docker push sonicorg/sonic-server-gateway:${{ steps.previoustag.outputs.tag }}
+      - name: deploy folder
+        run: docker build -t sonicorg/sonic-server-folder:${{ steps.previoustag.outputs.tag }} -f sonic-server-folder/src/main/docker/Dockerfile .
+      - name: push folder
+        run: docker push sonicorg/sonic-server-folder:${{ steps.previoustag.outputs.tag }}
